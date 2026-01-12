@@ -7,11 +7,14 @@ use Webkul\Activity\Contracts\Activity as ActivityContract;
 use Webkul\Contact\Models\PersonProxy;
 use Webkul\Lead\Models\LeadProxy;
 use Webkul\Product\Models\ProductProxy;
+use Webkul\SAAS\Traits\HasCompany;
 use Webkul\User\Models\UserProxy;
 use Webkul\Warehouse\Models\WarehouseProxy;
 
 class Activity extends Model implements ActivityContract
 {
+    use HasCompany;
+
     /**
      * Define table name of property
      *
@@ -53,6 +56,7 @@ class Activity extends Model implements ActivityContract
         'user_id',
         'location_lat',
         'location_lng',
+        'company_id',
     ];
 
     /**

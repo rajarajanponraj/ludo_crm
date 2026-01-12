@@ -46,7 +46,7 @@ class Menu
      */
     public function getItems(?string $area = null, string $key = ''): Collection
     {
-        if (! $area) {
+        if (!$area) {
             throw new \Exception('Area must be provided to get menu items.');
         }
 
@@ -57,16 +57,18 @@ class Menu
         }
 
         $configMenu = collect(config("menu.$area"))->map(function ($item) {
+            $url = isset($item['route']) ? route($item['route'], $item['params'] ?? []) : 'javascript:void(0);';
+
             return Arr::except([
                 ...$item,
-                'url' => route($item['route'], $item['params'] ?? []),
+                'url' => $url,
             ], ['params']);
         });
 
         switch ($area) {
             case self::ADMIN:
                 $this->configMenu = $configMenu
-                    ->filter(fn ($item) => bouncer()->hasPermission($item['key']))
+                    ->filter(fn($item) => bouncer()->hasPermission($item['key']))
                     ->toArray();
                 break;
 
@@ -76,11 +78,11 @@ class Menu
                 break;
         }
 
-        if (! $this->items) {
+        if (!$this->items) {
             $this->prepareMenuItems();
         }
 
-        $items = collect($this->items)->sortBy(fn ($item) => $item->getPosition());
+        $items = collect($this->items)->sortBy(fn($item) => $item->getPosition());
 
         return $items;
     }
@@ -94,11 +96,14 @@ class Menu
 
         $keysArray = (array) $keys;
 
-        $filteredItems = $items->filter(fn ($item) => in_array($item->getKey(), $keysArray));
+        $filteredItems = $items->filter(fn($item) => in_array($item->getKey(), $keysArray));
 
         return is_array($keys) ? $filteredItems : $filteredItems->first();
     }
 
+    /**
+     * Prepare menu items.
+     */
     /**
      * Prepare menu items.
      */
@@ -107,7 +112,9 @@ class Menu
         $menuWithDotNotation = [];
 
         foreach ($this->configMenu as $item) {
-            if (strpos(request()->url(), route($item['route'])) !== false) {
+            $url = isset($item['route']) ? route($item['route']) : '';
+
+            if ($url && strpos(request()->url(), $url) !== false) {
                 $this->currentKey = $item['key'];
             }
 
@@ -120,10 +127,10 @@ class Menu
             $this->addItem(new MenuItem(
                 key: $menuItemKey,
                 name: trans($menuItem['name']),
-                route: $menuItem['route'],
-                url: $menuItem['url'],
+                route: $menuItem['route'] ?? '',
+                url: $menuItem['url'] ?? 'javascript:void(0);',
                 sort: $menuItem['sort'],
-                icon: $menuItem['icon-class'],
+                icon: $menuItem['icon-class'] ?? '',
                 info: trans($menuItem['info'] ?? ''),
                 children: $this->processSubMenuItems($menuItem),
             ));
@@ -137,17 +144,17 @@ class Menu
     {
         return collect($menuItem)
             ->sortBy('sort')
-            ->filter(fn ($value) => is_array($value))
+            ->filter(fn($value) => is_array($value))
             ->map(function ($subMenuItem) {
                 $subSubMenuItems = $this->processSubMenuItems($subMenuItem);
 
                 return new MenuItem(
                     key: $subMenuItem['key'],
                     name: trans($subMenuItem['name']),
-                    route: $subMenuItem['route'],
-                    url: $subMenuItem['url'],
+                    route: $subMenuItem['route'] ?? '',
+                    url: $subMenuItem['url'] ?? 'javascript:void(0);',
                     sort: $subMenuItem['sort'],
-                    icon: $subMenuItem['icon-class'],
+                    icon: $subMenuItem['icon-class'] ?? '',
                     info: trans($subMenuItem['info'] ?? ''),
                     children: $subSubMenuItems,
                 );

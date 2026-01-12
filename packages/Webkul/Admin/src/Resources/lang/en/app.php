@@ -747,6 +747,25 @@ return [
     'settings' => [
         'title' => 'Settings',
 
+        'companies' => [
+            'title' => 'Companies',
+            'info' => 'Manage Companies',
+            'index' => 'Company List',
+            'create' => 'Create Company',
+            'edit' => 'Edit Company',
+            'delete' => 'Delete Company',
+            'create-title' => 'Create Company',
+            'edit-title' => 'Edit Company',
+            'save-btn-title' => 'Save Company',
+            'back' => 'Back',
+            'name' => 'Company Name',
+            'domain' => 'Domain',
+            'status' => 'Status',
+            'create-success' => 'Company created successfully.',
+            'update-success' => 'Company updated successfully.',
+            'delete-success' => 'Company deleted successfully.',
+        ],
+
         'groups' => [
             'index' => [
                 'create-btn' => 'Create Group',

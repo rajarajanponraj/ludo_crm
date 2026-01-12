@@ -13,12 +13,13 @@ use Webkul\Attribute\Traits\CustomAttribute;
 use Webkul\Contact\Contracts\Person as PersonContract;
 use Webkul\Contact\Database\Factories\PersonFactory;
 use Webkul\Lead\Models\LeadProxy;
+use Webkul\SAAS\Traits\HasCompany;
 use Webkul\Tag\Models\TagProxy;
 use Webkul\User\Models\UserProxy;
 
 class Person extends Model implements PersonContract
 {
-    use CustomAttribute, HasFactory, LogsActivity;
+    use CustomAttribute, HasCompany, HasFactory, LogsActivity;
 
     /**
      * Table name.
@@ -40,7 +41,7 @@ class Person extends Model implements PersonContract
      * @var array
      */
     protected $casts = [
-        'emails'          => 'array',
+        'emails' => 'array',
         'contact_numbers' => 'array',
     ];
 
@@ -57,6 +58,7 @@ class Person extends Model implements PersonContract
         'user_id',
         'organization_id',
         'unique_id',
+        'company_id',
     ];
 
     /**

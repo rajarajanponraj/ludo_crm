@@ -36,14 +36,24 @@ class SessionController extends Controller
     public function store(): RedirectResponse
     {
         $this->validate(request(), [
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        if (! auth()->guard('user')->attempt(request(['email', 'password']), request('remember'))) {
+        if (!auth()->guard('user')->attempt(request(['email', 'password']), request('remember'))) {
             session()->flash('error', trans('admin::app.users.login-error'));
 
             return redirect()->back();
+        }
+
+        // Company Check
+        if (session()->has('company_id')) {
+            $user = auth()->guard('user')->user();
+            if ($user->company_id !== session('company_id')) {
+                auth()->guard('user')->logout();
+                session()->flash('error', 'You do not have access to this organization.');
+                return redirect()->back();
+            }
         }
 
         if (auth()->guard('user')->user()->status == 0) {
@@ -58,7 +68,7 @@ class SessionController extends Controller
 
         $availableNextMenu = $menus?->first();
 
-        if (! bouncer()->hasPermission('dashboard')) {
+        if (!bouncer()->hasPermission('dashboard')) {
             if (is_null($availableNextMenu)) {
                 session()->flash('error', trans('admin::app.users.not-permission'));
 

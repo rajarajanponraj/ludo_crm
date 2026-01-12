@@ -1,0 +1,8 @@
+Verifying Phase 4: Super Admin Management...
+
+In Model.php line 1980:
+                                   
+  Call to a member function conne  
+  ction() on null                  
+                                   
+

@@ -36,7 +36,8 @@ class InstallerController extends Controller
         protected ServerRequirements $serverRequirements,
         protected EnvironmentManager $environmentManager,
         protected DatabaseManager $databaseManager
-    ) {}
+    ) {
+    }
 
     /**
      * Installer View Root Page
@@ -83,7 +84,7 @@ class InstallerController extends Controller
 
         $parameter = [
             'parameter' => [
-                'default_locales'  => $allParameters['app_locale'] ?? null,
+                'default_locales' => $allParameters['app_locale'] ?? null,
                 'default_currency' => $allParameters['app_currency'] ?? null,
             ],
         ];
@@ -105,15 +106,31 @@ class InstallerController extends Controller
         $password = password_hash(request()->input('password'), PASSWORD_BCRYPT, ['cost' => 10]);
 
         try {
+            // Ensure Default Company Exists
+            $company = \Illuminate\Support\Facades\DB::table('companies')->find(1);
+            if (!$company) {
+                \Illuminate\Support\Facades\DB::table('companies')->insert([
+                    'id' => 1,
+                    'name' => 'Main Company',
+                    'domain' => request()->getHost(), // Use current install host as default
+                    'status' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
             DB::table('users')->updateOrInsert(
                 [
                     'id' => self::USER_ID,
-                ], [
-                    'name'     => request()->input('admin'),
-                    'email'    => request()->input('email'),
+                ],
+                [
+                    'name' => request()->input('admin'),
+                    'email' => request()->input('email'),
                     'password' => $password,
-                    'role_id'  => 1,
-                    'status'   => 1,
+                    'role_id' => 1,
+                    'status' => 1,
+                    'company_id' => 1,
+                    'is_superuser' => 1,
                 ]
             );
 

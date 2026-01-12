@@ -10,7 +10,7 @@
                 @if ($logo = core()->getConfigData('general.design.admin_logo.logo_image'))
                     <img class="h-10 w-[110px]" src="{{ Storage::url($logo) }}" alt="{{ config('app.name') }}" />
                 @else
-                    <img class="w-max" src="{{ vite()->asset('images/logo.svg') }}" alt="{{ config('app.name') }}" />
+                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ config('app.name') }}</span>
                 @endif
 
                 <div class="box-shadow flex min-w-[300px] flex-col rounded-md bg-white dark:bg-gray-900">
@@ -76,12 +76,7 @@
             </div>
 
             <!-- Powered By - CSS Hidden -->
-            <div style="display: none;">
-                @lang('admin::app.components.layouts.powered-by.description', [
-                    'krayin' => '<a class="text-brandColor hover:underline " href="https://krayincrm.com/">Krayin</a>',
-                    'webkul' => '<a class="text-brandColor hover:underline " href="https://webkul.com/">Webkul</a>',
-                ])
-            </div>
+
         </div>
 
         @push('scripts')

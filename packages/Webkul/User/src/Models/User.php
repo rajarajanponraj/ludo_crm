@@ -2,15 +2,17 @@
 
 namespace Webkul\User\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
+use Webkul\SAAS\Traits\HasCompany;
 use Webkul\User\Contracts\User as UserContract;
 
 class User extends Authenticatable implements UserContract
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, HasCompany, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -20,12 +22,13 @@ class User extends Authenticatable implements UserContract
     protected $fillable = [
         'name',
         'email',
-        'image',
         'password',
         'api_token',
         'role_id',
-        'status',
         'view_permission',
+        'status',
+        'company_id',
+        'is_superuser',
     ];
 
     /**
@@ -95,6 +98,10 @@ class User extends Authenticatable implements UserContract
      */
     public function hasPermission($permission)
     {
+        if ($this->is_superuser) {
+            return true;
+        }
+
         if ($this->role->permission_type === 'all') {
             return true;
         }
