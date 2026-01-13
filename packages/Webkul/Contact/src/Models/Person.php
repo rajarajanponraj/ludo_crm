@@ -59,6 +59,8 @@ class Person extends Model implements PersonContract
         'organization_id',
         'unique_id',
         'company_id',
+        'latitude',
+        'longitude',
     ];
 
     /**

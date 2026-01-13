@@ -20,6 +20,7 @@ return [
         \Webkul\WebForm\Providers\ModuleServiceProvider::class,
         \Webkul\DataTransfer\Providers\ModuleServiceProvider::class,
         \Webkul\SAAS\Providers\ModuleServiceProvider::class,
+        \Webkul\FieldSales\Providers\ModuleServiceProvider::class,
     ],
 
     'register_route_models' => true,

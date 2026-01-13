@@ -29,7 +29,36 @@ class User extends Authenticatable implements UserContract
         'status',
         'company_id',
         'is_superuser',
+        'reports_to', // Added for Hierarchy
     ];
+
+    /**
+     * Get the manager of the user.
+     */
+    public function manager()
+    {
+        return $this->belongsTo(self::class, 'reports_to');
+    }
+
+    /**
+     * Get the subordinates of the user.
+     */
+    public function subordinates()
+    {
+        return $this->hasMany(self::class, 'reports_to');
+    }
+
+    /**
+     * Get all recursive subordinates IDs.
+     */
+    public function getSubordinateIds()
+    {
+        $ids = $this->subordinates()->pluck('id')->toArray();
+        foreach ($this->subordinates as $subordinate) {
+            $ids = array_merge($ids, $subordinate->getSubordinateIds());
+        }
+        return array_unique($ids);
+    }
 
     /**
      * The attributes that should be hidden for arrays.

@@ -1,0 +1,26 @@
+{
+    "name": "webkul/field-sales",
+    "description": "Field Sales Module for Krayin CRM",
+    "version": "0.0.1",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Webkul",
+            "email": "contact@webkul.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Webkul\\FieldSales\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webkul\\FieldSales\\Providers\\ModuleServiceProvider"
+            ],
+            "aliases": {}
+        }
+    }
+}
