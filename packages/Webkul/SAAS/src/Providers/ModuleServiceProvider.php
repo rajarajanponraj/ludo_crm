@@ -8,6 +8,8 @@ class ModuleServiceProvider extends BaseModuleServiceProvider
 {
     protected $models = [
         \Webkul\SAAS\Models\Company::class,
+        \Webkul\SAAS\Models\SaasPackage::class,
+        \Webkul\SAAS\Models\SaasSubscription::class,
     ];
 
     public function boot()
@@ -27,5 +29,10 @@ class ModuleServiceProvider extends BaseModuleServiceProvider
         );
 
         parent::boot();
+    }
+
+    public function register()
+    {
+        $this->app->register(SaasServiceProvider::class);
     }
 }

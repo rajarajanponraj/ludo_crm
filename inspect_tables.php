@@ -12,7 +12,7 @@ $response = $kernel->handle(
 
 use Illuminate\Support\Facades\Schema;
 
-$columns = Schema::getColumnListing('lead_products');
+$columns = Schema::getColumnListing('roles');
 print_r($columns);
 
 $columns2 = Schema::getColumnListing('products');

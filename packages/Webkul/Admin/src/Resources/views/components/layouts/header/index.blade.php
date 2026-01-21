@@ -5,7 +5,7 @@
         <!-- Sidebar Menu -->
         <x-admin::layouts.sidebar.mobile />
 
-        <a href="{{ route('admin.dashboard.index') }}">
+        {{-- <a href="{{ route('admin.dashboard.index') }}">
             @if ($logo = core()->getConfigData('general.general.admin_logo.logo_image'))
                 <img class="h-10" src="{{ Storage::url($logo) }}" alt="{{ config('app.name') }}" />
             @else
@@ -17,7 +17,7 @@
                     src="{{ request()->cookie('dark_mode') ? vite()->asset('images/mobile-dark-logo.svg') : vite()->asset('images/mobile-light-logo.svg') }}"
                     id="logo-image" alt="{{ config('app.name') }}" />
             @endif
-        </a>
+        </a> --}}
     </div>
 
     <div class="flex items-center gap-1.5 max-md:hidden">

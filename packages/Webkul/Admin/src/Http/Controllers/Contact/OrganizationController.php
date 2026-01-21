@@ -49,6 +49,10 @@ class OrganizationController extends Controller
      */
     public function store(AttributeForm $request): RedirectResponse
     {
+        $this->validate(request(), [
+            'slug' => ['required', 'string', 'max:100', 'unique:organizations,slug'],
+        ]);
+
         Event::dispatch('contacts.organization.create.before');
 
         $organization = $this->organizationRepository->create(request()->all());
@@ -75,6 +79,10 @@ class OrganizationController extends Controller
      */
     public function update(AttributeForm $request, int $id): RedirectResponse
     {
+        $this->validate(request(), [
+            'slug' => ['required', 'string', 'max:100', 'unique:organizations,slug,' . $id],
+        ]);
+
         Event::dispatch('contacts.organization.update.before', $id);
 
         $organization = $this->organizationRepository->update(request()->all(), $id);

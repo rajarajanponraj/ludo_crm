@@ -14,6 +14,11 @@ use Webkul\Contact\Models\Person;
 use Webkul\Lead\Models\Lead;
 use Webkul\Product\Models\Product;
 use Webkul\User\Models\User;
+use Webkul\Lead\Models\Pipeline;
+use Webkul\Lead\Models\Stage;
+use Webkul\Lead\Models\Source;
+use Webkul\Lead\Models\Type;
+use Carbon\Carbon;
 
 // Ensure we have a user
 $user = User::first();
@@ -22,96 +27,151 @@ if (!$user) {
     exit;
 }
 
-// 1. Create Products
+echo "Seeding Dashboard Data...\n";
+
+// 1. Fetch Necessary IDs
+$wonStage = Stage::where('code', 'won')->first();
+$lostStage = Stage::where('code', 'lost')->first();
+$newStage = Stage::where('code', 'new')->first(); // Assuming 'new' exists or pick first non-won/lost
+
+// Fallback if 'new' doesn't exist, pick the first one that isn't won/lost
+if (!$newStage) {
+    $newStage = Stage::whereNotIn('code', ['won', 'lost'])->first();
+}
+
+if (!$wonStage || !$lostStage) {
+    echo "Error: Could not find 'won' or 'lost' stages. Please check your DB configuration.\n";
+    exit;
+}
+
+$sources = Source::all();
+$types = Type::all();
+
+if ($sources->isEmpty() || $types->isEmpty()) {
+    echo "Error: No lead sources or types found. Please seed basic data first.\n";
+    exit;
+}
+
+// 2. Create Products
 echo "Creating Products...\n";
-$product1 = Product::firstOrCreate(
-    ['sku' => 'SRV-001'],
-    [
-        'name' => 'Premium Consultancy',
-        'price' => 5000,
-        'description' => 'High-end business consultancy integration',
-        'quantity' => 100,
-    ]
-);
+$products = [];
+$productData = [
+    ['sku' => 'SRV-001', 'name' => 'Premium Consultancy', 'price' => 5000],
+    ['sku' => 'SRV-002', 'name' => 'Basic Support Plan', 'price' => 1200],
+    ['sku' => 'SW-001', 'name' => 'CRM License', 'price' => 250],
+    ['sku' => 'HW-001', 'name' => 'IoT Device', 'price' => 1500],
+    ['sku' => 'MKT-001', 'name' => 'Marketing Bundle', 'price' => 3000],
+];
 
-$product2 = Product::firstOrCreate(
-    ['sku' => 'SRV-002'],
-    [
-        'name' => 'Basic Support Plan',
-        'price' => 1200,
-        'description' => 'Monthly support and maintenance',
-        'quantity' => 100,
-    ]
-);
+foreach ($productData as $p) {
+    $products[] = Product::firstOrCreate(
+        ['sku' => $p['sku']],
+        [
+            'name' => $p['name'],
+            'price' => $p['price'],
+            'description' => 'Test Product',
+            'quantity' => 100,
+        ]
+    );
+}
 
-// 2. Create Persons
+// 3. Create Persons
 echo "Creating Persons...\n";
-// Note: Person doesn't have simple unique constraint on name, but we can check name + user_id or similar.
-// For simplicity, we just check name here to avoid gross duplication in this script context.
-$person1 = Person::firstOrCreate(
-    ['name' => 'Alice Smith'],
-    [
-        'emails' => [['value' => 'alice@example.com', 'label' => 'work']],
-        'contact_numbers' => [['value' => '1234567890', 'label' => 'mobile']],
-        'user_id' => $user->id,
-    ]
-);
+$persons = [];
+$personNames = ['Alice Smith', 'Bob Jones', 'Charlie Brown', 'David Miller', 'Eve Wilson', 'Frank Thomas'];
 
-$person2 = Person::firstOrCreate(
-    ['name' => 'Bob Jones'],
-    [
-        'emails' => [['value' => 'bob@example.com', 'label' => 'work']],
-        'contact_numbers' => [['value' => '0987654321', 'label' => 'mobile']],
-        'user_id' => $user->id,
-    ]
-);
+foreach ($personNames as $index => $name) {
+    $persons[] = Person::firstOrCreate(
+        ['name' => $name],
+        [
+            'emails' => [['value' => strtolower(str_replace(' ', '.', $name)) . '@example.com', 'label' => 'work']],
+            'contact_numbers' => [['value' => '100000000' . $index, 'label' => 'mobile']],
+            'user_id' => $user->id,
+        ]
+    );
+}
 
-// 3. Create Leads
+// 4. Create Leads (Won, Lost, Open)
 echo "Creating Leads...\n";
-$lead1 = Lead::create([
-    'title' => 'Consultancy Inquiry',
-    'description' => 'Interested in premium plan',
-    'lead_value' => 5000,
-    'status' => 1,
-    'user_id' => $user->id,
-    'person_id' => $person1->id,
-    'lead_pipeline_id' => 1,
-    'lead_pipeline_stage_id' => 1, // New
-    'lead_type_id' => 1, // Assuming default exists
-    'lead_source_id' => 1, // Assuming default exists
-    'created_at' => now(),
-]);
 
-// Attach product to lead
-Webkul\Lead\Models\Product::create([
-    'lead_id' => $lead1->id,
-    'product_id' => $product1->id,
-    'quantity' => 1,
-    'price' => 5000,
-    'amount' => 5000,
-]);
+// Helper to create a lead
+function createTestLead($user, $person, $product, $stage, $source, $type, $isWon = false, $isLost = false, $dateOffset = 0)
+{
+    $createdAt = Carbon::now()->subDays($dateOffset);
+    $closedAt = ($isWon || $isLost) ? $createdAt->copy()->addHours(rand(1, 48)) : null;
 
+    // Assign pipeline stage
+    $pipelineId = 1; // Default pipeline
 
-$lead2 = Lead::create([
-    'title' => 'Support Request',
-    'description' => 'Needs monthly support',
-    'lead_value' => 1200,
-    'status' => 1,
-    'user_id' => $user->id,
-    'person_id' => $person2->id,
-    'lead_pipeline_id' => 1,
-    'lead_pipeline_stage_id' => 1,
-    'lead_type_id' => 1,
-    'lead_source_id' => 1,
-    'created_at' => now(),
-]);
+    $lead = Lead::create([
+        'title' => ($isWon ? 'Won' : ($isLost ? 'Lost' : 'Open')) . ' Deal - ' . $product->name,
+        'description' => 'Auto-generated test lead',
+        'lead_value' => $product->price,
+        'status' => 1,
+        'user_id' => $user->id,
+        'person_id' => $person->id,
+        'lead_pipeline_id' => $pipelineId,
+        'lead_pipeline_stage_id' => $stage->id,
+        'lead_type_id' => $type->id,
+        'lead_source_id' => $source->id,
+        'created_at' => $createdAt,
+        'closed_at' => $closedAt,
+        'expected_close_date' => Carbon::now()->addDays(10),
+    ]);
 
-Webkul\Lead\Models\Product::create([
-    'lead_id' => $lead2->id,
-    'product_id' => $product2->id,
-    'quantity' => 1,
-    'price' => 1200,
-    'amount' => 1200,
-]);
+    // Attach product
+    Webkul\Lead\Models\Product::create([
+        'lead_id' => $lead->id,
+        'product_id' => $product->id,
+        'quantity' => 1,
+        'price' => $product->price,
+        'amount' => $product->price,
+    ]);
+}
 
-echo "Dashboard data seeded successfully!\n";
+// Create 10 Won Leads (Spread over last 30 days)
+for ($i = 0; $i < 10; $i++) {
+    createTestLead(
+        $user,
+        $persons[array_rand($persons)],
+        $products[array_rand($products)],
+        $wonStage,
+        $sources->random(),
+        $types->random(),
+        true,
+        false,
+        rand(0, 30)
+    );
+}
+
+// Create 5 Lost Leads
+for ($i = 0; $i < 5; $i++) {
+    createTestLead(
+        $user,
+        $persons[array_rand($persons)],
+        $products[array_rand($products)],
+        $lostStage,
+        $sources->random(),
+        $types->random(),
+        false,
+        true,
+        rand(0, 30)
+    );
+}
+
+// Create 5 Open Leads
+for ($i = 0; $i < 5; $i++) {
+    createTestLead(
+        $user,
+        $persons[array_rand($persons)],
+        $products[array_rand($products)],
+        $newStage,
+        $sources->random(),
+        $types->random(),
+        false,
+        false,
+        rand(0, 10)
+    );
+}
+
+echo "Dashboard data created successfully! Refresh your dashboard.\n";

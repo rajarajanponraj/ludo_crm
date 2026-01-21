@@ -10,7 +10,7 @@
 
 @pushOnce('scripts')
     <script type="text/x-template" id="v-dashboard-top-persons-template">
-            <!-- Shimmer -->
+                    <!-- Shimmer -->
     <template v-if="isLoading">
         <x-admin::shimmer.dashboard.index.top-persons />
     </template>
@@ -30,14 +30,18 @@
                     class="flex gap-2.5 border-b p-4 transition-all last:border-b-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-950"
                     target="_blank" v-for="item in report.statistics">
                     <!-- Person Initials -->
-                    <x-admin::avatar ::name="item.name" />
+                    <div
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600 dark:bg-gray-800 dark:text-white">
+                        @{{ item.name.charAt(0).toUpperCase() }}
+                    </div>
 
                     <!-- Person Details -->
                     <div class="flex flex-col gap-1">
                         <p class="font-medium text-gray-800 dark:text-white">@{{ item.name }}</p>
 
-                        <p class="font-normal text-gray-800 dark:text-white">@{{ item.emails.map(item => item.value).join(',
-                            ') }}</p>
+                        <p class="font-normal text-gray-800 dark:text-white">
+                            @{{ item.emails.map(email => email.value).join(', ') }}
+                        </p>
                     </div>
                 </a>
             </div>

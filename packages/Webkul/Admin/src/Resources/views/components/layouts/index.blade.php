@@ -51,7 +51,8 @@
             ;
         }
 
-        {!! core()->getConfigData('general.content.custom_scripts.custom_css') !!}
+        /* {!! core()->getConfigData('general.content.custom_scripts.custom_css') !!}
+        */
     </style>
 
     {!! view_render_event('admin.layout.head.after') !!}

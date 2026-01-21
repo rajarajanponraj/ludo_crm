@@ -24,6 +24,7 @@ class Organization extends Model implements OrganizationContract
     protected $fillable = [
         'name',
         'address',
+        'slug',
         'user_id',
         'company_id',
     ];

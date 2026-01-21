@@ -14,8 +14,8 @@ class Locale
      * @return void
      */
     public function __construct(
-        Application $app,
-        Request $request
+        protected Application $app,
+        protected Request $request
     ) {
         $this->app = $app;
 
@@ -32,7 +32,7 @@ class Locale
     {
         app()->setLocale(
             core()->getConfigData('general.general.locale_settings.locale')
-                ?: app()->getLocale()
+            ?: app()->getLocale()
         );
 
         return $next($request);

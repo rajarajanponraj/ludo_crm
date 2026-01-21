@@ -56,6 +56,10 @@
                         'name' => [
                             'max:100',
                         ],
+                        'slug' => [
+                            'max:100',
+                            'unique:organizations,slug,' . $organization->id,
+                        ],
                         'address' => [
                             'max:100',
                         ],
@@ -65,6 +69,23 @@
                     ]"
                     :entity="$organization"
                 />
+
+                <!-- Slug Manual Input -->
+                <x-admin::form.control-group>
+                    <x-admin::form.control-group.label>
+                        Slug
+                    </x-admin::form.control-group.label>
+
+                    <x-admin::form.control-group.control
+                        type="text"
+                        name="slug"
+                        :value="old('slug') ?? $organization->slug"
+                        label="Slug"
+                        placeholder="Slug"
+                    />
+
+                    <x-admin::form.control-group.error control-name="slug" />
+                </x-admin::form.control-group>
                 
                 {!! view_render_event('admin.contacts.organizations.edit.form_controls.after') !!}
             </div>
